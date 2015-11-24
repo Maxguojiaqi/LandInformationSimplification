@@ -1,7 +1,3 @@
-# This is a standlone code for soilland cliping using fishnet
-# This creats raster files to help reduce the file size
-
-
 from Tkinter import *
 import ttk
 import csv
@@ -13,8 +9,10 @@ import os
 import arcpy
 import time
 import sys
+import subprocess
 from arcpy.sa import *
 
+arcpy.env.overwriteOutput = True
 class App:
 
 
@@ -171,12 +169,56 @@ class App:
 
                         print "Created .tif file contains the grid size information:" + "clippart" + str(row1.FID) + ".tif"
                         print "-----------------------------------------------------------------------"
+                    # out put compound analysis through saga gis
+                        def runCommand_logged(cmd, logstd, logerr):
+                            p = subprocess.call(cmd, stdout=logstd, stderr=logerr)
 
+                        WORKDIR = OFile
+                        STDLOG = WORKDIR + os.sep + "import.log"
+                        ERRLOG = WORKDIR + os.sep + "import.error.log"
+
+                        logstd = open(STDLOG, "a")
+                        logerr = open(ERRLOG, "a")
+                        dem_in = OFile + "/"
+                        out_path = OFile + "/out/"
+
+                        print "input dem forlder is: " + dem_in
+                        print "outpuy5compound analysis files: " + out_path
+
+                        def saga_compound(dem_in ,out_path):
+
+                            in_ELEVATION  = dem_in + "clippart" + str(row1.FID) + ".tif"
+                            out_SHADE = out_path + "out_SHADE" + str(row1.FID) +".tif"
+                            out_SLOPE = out_path + "out_SLOPE" + str(row1.FID) +".tif"
+                            out_HCURV = out_path + "out_HCURV" + str(row1.FID) +".tif"
+                            out_VCURV = out_path + "out_VCURV" + str(row1.FID) +".tif"
+                            out_CONVERGENCE = out_path + "out_CONVERGENCE" + str(row1.FID) +".tif"
+                            out_SINKS = out_path + "out_SINKS" + str(row1.FID) +".tif"
+                            out_CAREA = out_path + "out_CAREA" + str(row1.FID) +".tif"
+                            out_WETNESS = out_path + "out_WETNESS" + str(row1.FID) +".tif"
+                            out_LSFACTOR = out_path + "out_LSFACTOR" + str(row1.FID) +".tif"
+                            out_CHANNELS = out_path + "out_CHANNELS" + str(row1.FID) +".tif"
+                            out_BASINS = out_path + "out_BASINS" + str(row1.FID) +".tif"
+                            out_CHNL_BASE = out_path + "out_CHNL_BASE" + str(row1.FID) +".tif"
+                            out_CHNL_DIST = out_path + "out_CHNL_DIST" + str(row1.FID) +".tif"
+                            out_VALL_DEPTH = out_path + "out_VALL_DEPTH" + str(row1.FID) +".tif"
+                            out_RSP = out_path + "out_RSP" + str(row1.FID) +".tif"
+
+                            cmd = 'saga_cmd ta_compound 0 -ELEVATION ' + in_ELEVATION + ' -SHADE ' + out_SHADE+ ' -SLOPE ' + out_SLOPE + ' -HCURV ' + out_HCURV + ' -VCURV ' + out_VCURV + ' -CONVERGENCE ' + out_CONVERGENCE+ ' -SINKS ' + out_SINKS+ ' -CAREA ' + out_CAREA+ ' -WETNESS ' + out_WETNESS+ ' -LSFACTOR ' + out_LSFACTOR+ ' -CHANNELS ' + out_CHANNELS+ ' -BASINS ' + out_BASINS+ ' -CHNL_BASE ' + out_CHNL_BASE+ ' -CHNL_DIST ' + out_CHNL_DIST+ ' -VALL_DEPTH ' + out_VALL_DEPTH+ ' -RSP ' + out_RSP + ' -THRESHOLD 5' #+ out_THRESHOLD 
+                            
+                            try:
+                                runCommand_logged(cmd, logstd, logerr)
+                            except Exception, e:
+                                logerr.write("Exception thrown")
+                                logerr.write("ERROR: %s\n" % e)
+
+                        saga_compound(dem_in ,out_path)
+                        print "Compound analysis for part" + str(row1.FID) +" has successfully created"
+                            
 
                         
 
 
-                    print "All the grid points have been successfully generated!"
                     print "--------------------------------------------------------------------"
                     print "Program ClipIntoFishnet Ends: ",time.asctime( time.localtime(time.time()) )
                     print "--------------------------------------------------------------------"
@@ -185,8 +227,9 @@ class App:
 
 root = Tk()
 
-root.title("Simple GUI")
+root.title("DEM Cliping")
 root.resizable(0,0)
 app = App(root)
 root.mainloop()
 root.destroy()
+

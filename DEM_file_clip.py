@@ -150,6 +150,11 @@ class App:
 
                     rowsFishnet = arcpy.SearchCursor(lyrFishnet)
 
+                    # check if the directory exists, and create one if needed
+                    directory = OFile + "/out"
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+
                     for row1 in rowsFishnet:
 
                         

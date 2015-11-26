@@ -155,6 +155,8 @@ class App:
                     if not os.path.exists(directory):
                         os.makedirs(directory)
 
+                    print directory 
+
                     for row1 in rowsFishnet:
 
                         
@@ -173,8 +175,9 @@ class App:
                         arcpy.Clip_management(in_features_p, "#",out_feature_class_p,clip_feature_p,"0","ClippingGeometry")
 
                         print "Created .tif file contains the grid size information:" + "clippart" + str(row1.FID) + ".tif"
-                        print "-----------------------------------------------------------------------"
+
                     # out put compound analysis through saga gis
+                    
                         def runCommand_logged(cmd, logstd, logerr):
                             p = subprocess.call(cmd, stdout=logstd, stderr=logerr)
 
@@ -188,7 +191,7 @@ class App:
                         out_path = OFile + "/out/"
 
                         print "input dem forlder is: " + dem_in
-                        print "outpuy5compound analysis files: " + out_path
+                        print "output compound analysis files: " + out_path
 
                         def saga_compound(dem_in ,out_path):
 
@@ -218,7 +221,14 @@ class App:
                                 logerr.write("ERROR: %s\n" % e)
 
                         saga_compound(dem_in ,out_path)
+
+
+                        #def saga_tif(sdat_in, tif_out)
+
+                            
+                        
                         print "Compound analysis for part" + str(row1.FID) +" has successfully created"
+                        print "--------------------------------------------------------------------------"
                             
 
                         
@@ -237,4 +247,3 @@ root.resizable(0,0)
 app = App(root)
 root.mainloop()
 root.destroy()
-
